@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+/* =========================================
+   1. CONFIGURACIÓN DE TAILWIND CSS
+   ========================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   2. ESTILOS GLOBALES DE IONIC
+   (Asegúrate de que no choquen con Tailwind)
+   ========================================= */
+
+/* Hacemos que la fuente de Ionic herede la que definas en Tailwind o la del sistema */
+:root {
+  --ion-font-family: inherit;
+}
+
+body {
+  /* Opcional: Si quieres un fondo oscuro base que coincida con tu tema */
+  @apply bg-gray-50 dark:bg-gray-900;
+}
+
+/* Arreglo para que los inputs de Ionic se vean bien con Tailwind */
+ion-item {
+  --background: transparent;
+}
