@@ -1,0 +1,122 @@
+<ion-content>
+  <div class="min-h-screen bg-gray-50 p-6">
+
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">🏢 Gestión de Sucursales</h1>
+        <p class="text-sm text-gray-500">Administra tus locales y sus zonas</p>
+      </div>
+      
+      @if (!selectedBranch) {
+        <button (click)="openCreateBranchModal()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium transition flex items-center gap-2">
+          <span>+ Nueva Sucursal</span>
+        </button>
+      }
+    </div>
+
+    @if (!selectedBranch) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        @if (isLoading) {
+          <div class="col-span-full flex justify-center py-10">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        }
+
+        @for (branch of branches; track branch.id) {
+          <div (click)="selectBranch(branch)" 
+               class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition cursor-pointer group">
+            
+            <div class="h-40 bg-gray-200 relative">
+              @if (branch.imageUrl) {
+                <img [src]="branch.imageUrl" class="w-full h-full object-cover">
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                  <span class="text-4xl">🏢</span>
+                </div>
+              }
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition"></div>
+            </div>
+
+            <div class="p-4">
+              <h3 class="font-bold text-lg text-gray-800">{{ branch.name }}</h3>
+              <p class="text-sm text-gray-500 mb-4">{{ branch.address }}</p>
+              
+              <div class="flex items-center justify-between text-xs text-gray-400 border-t pt-3">
+                <span>{{ branch.zones?.length || 0 }} Zonas activas</span>
+                <span class="text-blue-600 font-medium group-hover:underline">Gestionar →</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (!isLoading && branches.length === 0) {
+        <div class="text-center py-20 text-gray-400">
+          <p>No tienes sucursales registradas.</p>
+        </div>
+      }
+    }
+
+    @if (selectedBranch) {
+      <div class="animate-fade-in-up">
+        
+        <button (click)="goBack()" class="mb-4 text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1">
+          ← Volver a lista
+        </button>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">Sucursal</span>
+            <h2 class="text-3xl font-bold text-gray-800 mt-1">{{ selectedBranch.name }}</h2>
+            <p class="text-gray-500">{{ selectedBranch.address }}</p>
+          </div>
+          
+          <button (click)="openCreateZoneModal()" 
+                  class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg shadow font-medium flex items-center gap-2">
+            <span>🏗️ Instanciar Nueva Zona</span>
+          </button>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-700 mb-4">Zonas Operativas</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (zone of selectedBranch.zones; track zone.id) {
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex justify-between items-center">
+              
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold">
+                  {{ zone.name.charAt(0) }}
+                </div>
+                <div>
+                  <h4 class="font-bold text-gray-800">{{ zone.name }}</h4>
+                  <p class="text-xs text-gray-500">
+                    Mesas: <span class="font-medium">{{ zone.tables?.length || 0 }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <button (click)="goToFurnitureEditor(zone.id)" 
+                        class="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-2 rounded-md font-medium border border-indigo-200 transition">
+                  ✏️ Editar Distribución
+                </button>
+              </div>
+
+            </div>
+          }
+
+          @if (!selectedBranch.zones || selectedBranch.zones.length === 0) {
+            <div class="col-span-full bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center text-gray-500">
+              <p>Esta sucursal aún no tiene zonas.</p>
+              <p class="text-sm mt-1">Usa el botón "Instanciar Nueva Zona" para agregar una desde tus planos.</p>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+  </div>
+</ion-content>
