@@ -8,8 +8,12 @@
       
       <div class="text-xs text-gray-500 mb-2">
         <p>Muros creados: <span class="font-bold text-black">{{ walls.length }}</span></p>
-        <p *ngIf="isDrawing" class="text-blue-600 animate-pulse">✏️ Dibujando...</p>
-        <p *ngIf="!isDrawing">Haz click y arrastra para crear</p>
+        
+        @if (isDrawing) {
+          <p class="text-blue-600 animate-pulse">✏️ Dibujando...</p>
+        } @else {
+          <p>Haz click y arrastra para crear</p>
+        }
       </div>
 
       <button (click)="saveBlueprint()" 
