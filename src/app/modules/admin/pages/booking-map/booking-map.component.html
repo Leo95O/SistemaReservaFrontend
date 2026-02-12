@@ -1,0 +1,65 @@
+<ion-content>
+  <div class="flex flex-col h-screen bg-white">
+    
+    <div class="bg-white border-b border-gray-200 p-4 shadow-sm z-10 flex items-center justify-between">
+      <div>
+        <h2 class="text-sm font-bold text-gray-500 uppercase">Reservar en</h2>
+        <h1 class="text-xl font-bold text-gray-800">{{ currentZone?.name || 'Cargando...' }}</h1>
+      </div>
+      
+      <div class="bg-gray-100 rounded-lg px-3 py-1 border border-gray-300">
+        <ion-datetime-button datetime="datetime"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime id="datetime" 
+                          presentation="date-time" 
+                          [value]="selectedDate"
+                          (ionChange)="onDateTimeChange($event)"></ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </div>
+    </div>
+
+    <div class="flex-1 relative bg-gray-50 overflow-hidden">
+      @if (isLoading) {
+        <div class="absolute inset-0 flex items-center justify-center">
+          <ion-spinner></ion-spinner>
+        </div>
+      }
+
+      @if (currentZone) {
+        <app-map-renderer
+          [zoneData]="currentZone"
+          mode="client"
+          [occupiedTableIds]="occupiedTableIds"
+          [selectedTableIds]="selectedTableIds"
+          (tableSelect)="onTableSelect($event)"
+        ></app-map-renderer>
+      }
+    </div>
+
+    <div class="bg-white border-t border-gray-200 p-4 shadow-lg z-20 transition-transform duration-300"
+         [class.translate-y-full]="selectedTables.length === 0">
+      
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <p class="text-xs text-gray-500 font-bold uppercase">Tu Selección</p>
+          <p class="text-lg font-bold text-gray-800">
+            {{ selectedTables.length }} Mesas <span class="text-gray-400">|</span> {{ totalCapacity }} Personas
+          </p>
+        </div>
+        <div class="flex gap-1">
+          @for (table of selectedTables; track table.id) {
+             <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">{{ table.code }}</span>
+          }
+        </div>
+      </div>
+
+      <button (click)="confirmBooking()" 
+              class="w-full bg-black text-white py-3 rounded-xl font-bold text-lg hover:bg-gray-800 transition active:scale-95 shadow-lg">
+        Confirmar Reserva
+      </button>
+    </div>
+
+  </div>
+</ion-content>

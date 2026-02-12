@@ -22,12 +22,17 @@ const routes: Routes = [
     path: 'admin/furniture-editor/:id', // Recibe ID de la ZONA REAL
     loadChildren: () => import('./modules/admin/pages/furniture-editor/furniture-editor.module').then(m => m.FurnitureEditorModule)
   },
+  {
+  path: 'client',
+  loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule)
+  },
 
   // 3. Ruta Comodín (Opcional, por si escriben mal la URL)
   {
     path: '**',
     redirectTo: 'admin/branches'
   }
+
 ];
 
 @NgModule({
