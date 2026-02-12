@@ -15,6 +15,7 @@ import { fal } from '@fortawesome/pro-light-svg-icons';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app'; // Tu componente principal
+import { MapRendererModule } from './shared/ui/map-renderer/map-renderer.module';
 
 @NgModule({
   declarations: [
