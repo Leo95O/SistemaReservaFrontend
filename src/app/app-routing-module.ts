@@ -2,37 +2,38 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
-  // 1. Redirección inicial (Por ahora al gestor de sucursales, que es el "Home" del admin)
+  // Redirección inicial (Admin o Client según prefieras, por ahora Admin)
   {
     path: '',
-    redirectTo: 'admin/branches', 
+    redirectTo: 'admin/branches',
     pathMatch: 'full'
   },
 
-  // 2. Rutas de ADMINISTRACIÓN
+  // 1. MÓDULO ADMIN (Privado)
   {
     path: 'admin/branches',
     loadChildren: () => import('./modules/admin/pages/branch-manager/branch-manager.module').then(m => m.BranchManagerModule)
   },
   {
-    path: 'admin/blueprint-editor/:id', // Recibe ID para editar o 'new'
+    path: 'admin/blueprint-editor/:id',
     loadChildren: () => import('./modules/admin/pages/blueprint-editor/blueprint-editor.module').then(m => m.BlueprintEditorModule)
   },
   {
-    path: 'admin/furniture-editor/:id', // Recibe ID de la ZONA REAL
+    path: 'admin/furniture-editor/:id',
     loadChildren: () => import('./modules/admin/pages/furniture-editor/furniture-editor.module').then(m => m.FurnitureEditorModule)
   },
+
+  // 2. MÓDULO CLIENTE (Público) - ¡NUEVA RUTA!
   {
-  path: 'client',
-  loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule)
+    path: 'client',
+    loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule)
   },
 
-  // 3. Ruta Comodín (Opcional, por si escriben mal la URL)
+  // Fallback
   {
     path: '**',
     redirectTo: 'admin/branches'
   }
-
 ];
 
 @NgModule({
