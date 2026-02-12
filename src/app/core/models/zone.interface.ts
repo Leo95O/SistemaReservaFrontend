@@ -1,17 +1,13 @@
-import { Wall } from './blueprint.interface';
 import { Table } from './table.interface';
+import { Wall } from './blueprint.interface'; // Asegúrate de importar esto
 
 export interface Zone {
   id: string;
   name: string;
   width: number;
   height: number;
+  backgroundImageUrl?: string;
   
-  // NUEVOS CAMPOS DEL BACKEND
-  isUnderMaintenance: boolean; // El semáforo de edición
-  walls: Wall[]; // Copia de los muros del blueprint
-  blueprintId?: string;
-  
-  tables?: Table[];
-  branchId: string;
+  tables?: Table[]; 
+  walls?: Wall[]; // 👈 NUEVO: Ahora la zona transporta sus muros
 }

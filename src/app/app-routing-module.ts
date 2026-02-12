@@ -10,7 +10,11 @@ const routes: Routes = [
   {
     path: 'playground',
     loadChildren: () => import('./modules/admin/pages/map-playground/map-playground.module').then(m => m.MapPlaygroundModule)
-  }
+  },
+  {
+  path: 'blueprint-editor',
+  loadChildren: () => import('./modules/admin/pages/blueprint-editor/blueprint-editor.module').then(m => m.BlueprintEditorModule)
+}
 ];
 
 
