@@ -1,10 +1,10 @@
 import { Table } from './table.interface';
 
 export interface Zone {
-  id: string; // UUID
+  id: string;
   name: string;
-  width: number;  // Metros (float)
-  height: number; // Metros (float)
-  backgroundImageUrl?: string; // URL absoluta del plano (opcional)
-  tables?: Table[]; // Relación One-To-Many
+  width: number;  // Metros
+  height: number; // Metros
+  backgroundImageUrl?: string;
+  tables?: Table[]; // El signo '?' evita errores si viene undefined
 }

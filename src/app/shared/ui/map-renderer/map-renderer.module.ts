@@ -4,7 +4,9 @@ import { MapRendererComponent } from './map-renderer.component';
 
 @NgModule({
   declarations: [MapRendererComponent],
-  imports: [CommonModule],
-  exports: [MapRendererComponent] // ¡Exportamos para que otros lo usen!
+  imports: [
+    CommonModule
+  ],
+  exports: [MapRendererComponent]
 })
 export class MapRendererModule { }
