@@ -1,25 +1,25 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { BranchManagerComponent } from './pages/branch-manager/branch-manager.component';
-// Asegúrate de tener el componente lista de blueprints o el editor
-import { BlueprintEditorComponent } from './pages/blueprint-editor/blueprint-editor.component'; 
 
 const routes: Routes = [
   {
-    path: '',
-    // Si tienes un Layout (AdminLayoutComponent), úsalo aquí. Si no, déjalo sin component y usa solo children.
+    path: '', // Estando ya en /admin
     children: [
       {
         path: 'branches',
-        component: BranchManagerComponent
+        loadChildren: () => import('./pages/branch-manager/branch-manager.module').then(m => m.BranchManagerModule)
       },
       {
-        path: 'blueprints', // OJO: Sin slash '/' al inicio
-        component: BlueprintEditorComponent // O el componente que lista los blueprints
+        path: 'blueprint-editor/:id',
+        loadChildren: () => import('./pages/blueprint-editor/blueprint-editor.module').then(m => m.BlueprintEditorModule)
       },
       {
-        path: '', 
-        redirectTo: 'branches', // Redirige a branches si entran a /admin solo
+        path: 'furniture-editor/:id',
+        loadChildren: () => import('./pages/furniture-editor/furniture-editor.module').then(m => m.FurnitureEditorModule)
+      },
+      {
+        path: '',
+        redirectTo: 'branches',
         pathMatch: 'full'
       }
     ]
