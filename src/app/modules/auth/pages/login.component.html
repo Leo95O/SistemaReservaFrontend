@@ -1,0 +1,36 @@
+<ion-content class="ion-padding" color="light">
+  <div class="flex h-full flex-col justify-center items-center">
+    
+    <ion-card class="w-full max-w-md p-6">
+      <ion-card-header>
+        <ion-card-title class="text-2xl font-bold text-center">Bienvenido</ion-card-title>
+        <ion-card-subtitle class="text-center">Sistema de Reservas Digital</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          
+          <ion-item fill="outline" class="mb-4">
+            <ion-label position="floating">Email</ion-label>
+            <ion-input type="email" formControlName="email"></ion-input>
+          </ion-item>
+          <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" class="text-red-500 text-xs pl-4 mb-2">
+            Email inválido
+          </div>
+
+          <ion-item fill="outline" class="mb-6">
+            <ion-label position="floating">Contraseña</ion-label>
+            <ion-input type="password" formControlName="password"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isLoading">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Iniciar Sesión</span>
+          </ion-button>
+
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

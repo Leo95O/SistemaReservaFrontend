@@ -1,8 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, ToastController, ModalController } from '@ionic/angular';
+import { ToastController, AlertController } from '@ionic/angular';
 import { ZoneService } from '../../../../core/services/zone.service';
 import { ReservationsService } from '../../../../core/services/reservations.service';
+import { AuthService } from '../../../../core/services/auth.service'; // ✅ Nuevo
 import { Zone } from '../../../../core/models/zone.interface';
 import { Table } from '../../../../core/models/table.interface';
 
@@ -16,18 +17,19 @@ export class BookingMapComponent implements OnInit {
   // Inyecciones
   private zoneService = inject(ZoneService);
   private resService = inject(ReservationsService);
+  private authService = inject(AuthService); // ✅ Nuevo
   private route = inject(ActivatedRoute);
-  private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private alertCtrl = inject(AlertController); // Solo para confirmar, no para pedir datos
 
   // Estado UI
   currentZone: Zone | null = null;
   isLoading = true;
   
   // Estado Lógico
-  selectedDate: string = new Date().toISOString(); // Default: Ahora
-  occupiedTableIds: string[] = []; // IDs rojos
-  selectedTables: Table[] = []; // Objetos mesa seleccionados (Verdes)
+  selectedDate: string = new Date().toISOString(); 
+  occupiedTableIds: string[] = []; 
+  selectedTables: Table[] = []; 
 
   get totalCapacity(): number {
     return this.selectedTables.reduce((acc, t) => acc + (t.seats || 4), 0);
@@ -50,67 +52,56 @@ export class BookingMapComponent implements OnInit {
       next: (zone) => {
         this.currentZone = zone;
         this.isLoading = false;
-        this.checkAvailability(); // Consultar disponibilidad inicial
+        this.checkAvailability();
       },
       error: () => this.isLoading = false
     });
   }
 
-  // 1. CAMBIO DE FECHA -> Consultar Disponibilidad
   onDateTimeChange(event: any) {
     this.selectedDate = event.detail.value;
-    this.selectedTables = []; // Limpiar selección al cambiar hora
+    this.selectedTables = []; 
     this.checkAvailability();
   }
 
   checkAvailability() {
     if (!this.currentZone) return;
-    
-    // Llamada al servicio
     this.resService.getAvailability(this.currentZone.id, this.selectedDate).subscribe({
-      next: (occupiedIds) => {
-        this.occupiedTableIds = occupiedIds;
-      },
+      next: (occupiedIds) => this.occupiedTableIds = occupiedIds,
       error: () => console.error('Error verificando disponibilidad')
     });
   }
 
-  // 2. SELECCIÓN DE MESA (Click en Mapa)
   onTableSelect(table: Table) {
-    // Si está ocupada, el mapa ya no emite el evento (lógica en renderer), pero por seguridad:
     if (this.occupiedTableIds.includes(table.id)) return;
-
     const index = this.selectedTables.findIndex(t => t.id === table.id);
-    
-    if (index >= 0) {
-      // Deseleccionar
-      this.selectedTables.splice(index, 1);
-    } else {
-      // Seleccionar
-      this.selectedTables.push(table);
-    }
-    // Forzamos actualización de referencia para que Angular detecte cambios en inputs getters
+    if (index >= 0) this.selectedTables.splice(index, 1);
+    else this.selectedTables.push(table);
     this.selectedTables = [...this.selectedTables]; 
   }
 
-  // 3. CONFIRMAR RESERVA
+  // --- REFACTOR: Usar datos del usuario logueado ---
   async confirmBooking() {
     if (this.selectedTables.length === 0) return;
 
+    // Obtenemos el usuario actual
+    const user = this.authService.currentUser();
+    
+    if (!user) {
+      this.presentToast('⚠️ Debes iniciar sesión para reservar', 'warning');
+      return;
+    }
+
     const alert = await this.alertCtrl.create({
       header: 'Confirmar Reserva',
-      subHeader: `${this.totalCapacity} Personas - ${this.selectedTables.length} Mesas`,
-      inputs: [
-        { name: 'name', type: 'text', placeholder: 'Tu Nombre' },
-        { name: 'email', type: 'email', placeholder: 'Tu Correo' }
-      ],
+      subHeader: `Para: ${user.fullName}`,
+      message: `Mesas: ${this.selectedTables.length} | Personas: ${this.totalCapacity}`,
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
-          text: 'Reservar',
-          handler: (data) => {
-            if (!data.name || !data.email) return false;
-            this.createReservation(data);
+          text: '¡Reservar!',
+          handler: () => {
+            this.createReservation(user);
             return true;
           }
         }
@@ -119,24 +110,25 @@ export class BookingMapComponent implements OnInit {
     await alert.present();
   }
 
-  createReservation(customerData: any) {
+  createReservation(user: any) {
     if (!this.currentZone) return;
 
     const payload = {
       zoneId: this.currentZone.id,
       tableIds: this.selectedTableIds,
       datetime: this.selectedDate,
-      customerName: customerData.name,
-      customerEmail: customerData.email
+      // Backend debe priorizar el User del Token, pero enviamos esto por si acaso
+      customerName: user.fullName, 
+      customerEmail: user.email
     };
 
     this.resService.create(payload).subscribe({
       next: () => {
-        this.presentToast('✅ ¡Reserva confirmada! Te esperamos.', 'success');
+        this.presentToast('✅ ¡Reserva confirmada!', 'success');
         this.selectedTables = [];
-        this.checkAvailability(); // Refrescar para verlas rojas
+        this.checkAvailability(); 
       },
-      error: () => this.presentToast('❌ Error al reservar. Intenta de nuevo.', 'danger')
+      error: () => this.presentToast('❌ Error al reservar.', 'danger')
     });
   }
 

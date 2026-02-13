@@ -1,28 +1,38 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 const routes: Routes = [
   {
+    path: 'auth',
+    loadChildren: () => import('./modules/auth/auth.module').then(m => m.AuthModule)
+  },
+  {
     path: 'admin',
-    loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule)
+    loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule),
+    canActivate: [authGuard, adminGuard] // 🔒 Doble candado
   },
   {
     path: 'client',
-    loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule)
+    loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule),
+    canActivate: [authGuard] // 🔒 Solo login requerido
   },
   {
     path: '',
-    redirectTo: 'admin', // Redirigir a admin temporalmente para probar
+    redirectTo: 'auth/login',
     pathMatch: 'full'
   },
   {
     path: '**',
-    redirectTo: 'admin'
+    redirectTo: 'auth/login'
   }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+  ],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
