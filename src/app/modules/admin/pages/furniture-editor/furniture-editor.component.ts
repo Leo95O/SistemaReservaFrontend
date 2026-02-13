@@ -85,17 +85,23 @@ export class FurnitureEditorComponent implements OnInit, OnDestroy {
   }
 
   // 3. GUARDAR CAMBIOS Y SALIR (UNLOCK)
+// 3. GUARDAR CAMBIOS Y SALIR (UNLOCK)
   async saveAndExit() {
     if (!this.currentZone || !this.zoneId) return;
 
     const loading = await this.loadingCtrl.create({ message: 'Guardando distribución...' });
     await loading.present();
 
-    // Enviamos el array COMPLETO de mesas
+    // Enviamos el array de mesas (que puede tener IDs temporales)
     this.zoneService.saveLayout(this.zoneId, this.currentZone.tables || []).subscribe({
-      next: () => {
-        // Una vez guardado, desbloqueamos
-        this.unlockAndReset(loading, 'Distribución guardada correctamente.');
+      next: (updatedZone) => { // ✅ 1. Recibimos la "Zona Real" del Backend
+        
+        // ✅ 2. ACTUALIZACIÓN CRÍTICA DE ESTADO (SYNC)
+        // Reemplazamos la zona local (con IDs temporales) por la del servidor (UUIDs reales).
+        this.currentZone = updatedZone; 
+
+        // Una vez sincronizado el estado, desbloqueamos y notificamos
+        this.unlockAndReset(loading, 'Distribución guardada y sincronizada correctamente.');
       },
       error: (err) => {
         loading.dismiss();
