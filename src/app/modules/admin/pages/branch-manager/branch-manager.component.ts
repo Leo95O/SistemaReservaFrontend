@@ -71,8 +71,8 @@ export class BranchManagerComponent implements OnInit {
 
   // --- ACCIONES DE CREACIÓN ---
 
-  async openCreateBranchModal() {
-    const alert = await this.alertCtrl.create({
+    async openCreateBranchModal() {
+     const alert = await this.alertCtrl.create({
       header: 'Nueva Sucursal',
       inputs: [
         { name: 'name', type: 'text', placeholder: 'Nombre (ej: Sede Central)' },
@@ -84,8 +84,24 @@ export class BranchManagerComponent implements OnInit {
         {
           text: 'Crear',
           handler: (data) => {
+            // 1. Validación básica (Bloqueo si faltan requeridos)
             if (!data.name || !data.address) return false;
-            this.createBranch(data);
+
+            // 2. Lógica de Sanitización (Interceptamos el valor)
+            // Trim() elimina espacios accidentales al inicio/final.
+            // Si queda vacío, enviamos null explícitamente.
+            const cleanImageUrl = (data.imageUrl && data.imageUrl.trim() !== '') 
+                                  ? data.imageUrl.trim() 
+                                  : null;
+
+            const payload = {
+              name: data.name,
+              address: data.address,
+              imageUrl: cleanImageUrl
+            };
+
+            // 3. Enviamos el payload ya limpio al servicio
+            this.createBranch(payload);
             return true;
           }
         }
