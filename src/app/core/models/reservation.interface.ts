@@ -1,12 +1,18 @@
+import { Zone } from './zone.interface';
+import { Branch } from './branch.interface';
+
 export interface Reservation {
-  id: string;
-  clientName: string;
-  reservationDate: string; // ISO Date (YYYY-MM-DD)
-  startTime: string;       // Hora inicio (HH:mm)
-  durationMinutes: number; // Duración en minutos
+  id?: string;
+  date: string;     // ISO String (YYYY-MM-DD)
+  time: string;     // HH:mm
+  customerName: string;
+  customerEmail: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   
-  // Relación Clave: Una reserva bloquea VARIAS mesas
-  tableIds: string[];      // ["uuid-1", "uuid-2"]
+  // Relaciones anidadas (Populated by Backend)
+  zone?: Zone;
+  branch?: Branch;
+  tableIds: string[];
   
-  status: 'confirmed' | 'cancelled' | 'pending';
+  createdAt?: Date;
 }

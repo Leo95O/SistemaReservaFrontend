@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Zone } from '../models/zone.interface';
@@ -10,17 +10,29 @@ import { Table } from '../models/table.interface';
 })
 export class ZoneService {
   private http = inject(HttpClient);
+  // Asegúrate de que environment.apiUrl apunta a 'http://localhost:3000/api' (o similar)
   private apiUrl = `${environment.apiUrl}/zones`;
 
   /**
-   * Obtiene la zona completa (muros + mesas)
+   * Obtiene la zona completa (muros + mesas) por ID
    */
   getZone(id: string): Observable<Zone> {
     return this.http.get<Zone>(`${this.apiUrl}/${id}`);
   }
 
   /**
-   * Crea una nueva zona instanciando un plano base (Blueprint)
+   * ✅ NUEVO: Obtiene las zonas asociadas a una sucursal específica.
+   * Usado por: ClientHomeComponent
+   */
+  getZonesByBranch(branchId: string): Observable<Zone[]> {
+    // Asumimos que el backend filtra por query param: GET /zones?branchId=XYZ
+    const params = new HttpParams().set('branchId', branchId);
+    return this.http.get<Zone[]>(this.apiUrl, { params });
+  }
+
+  /**
+   * Crea una nueva zona instanciando un plano base (Blueprint).
+   * Usado por: BranchManager
    */
   instantiateBlueprint(blueprintId: string, branchId: string, name: string): Observable<Zone> {
     const payload = { blueprintId, branchId, name };
@@ -29,7 +41,7 @@ export class ZoneService {
 
   /**
    * Intenta bloquear la zona para edición exclusiva.
-   * Retorna éxito si nadie más la tiene bloqueada.
+   * Usado por: FurnitureEditor (ngOnInit/toggle)
    */
   lockZone(id: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}/lock`, {});
@@ -37,6 +49,7 @@ export class ZoneService {
 
   /**
    * Libera la zona para que otros puedan editarla.
+   * Usado por: FurnitureEditor (ngOnDestroy)
    */
   unlockZone(id: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}/unlock`, {});
@@ -47,7 +60,7 @@ export class ZoneService {
    * Estrategia: Full Replace (Reemplaza todo el array de mesas)
    */
   saveLayout(id: string, tables: Table[]): Observable<Zone> {
-    // Envolvemos en un objeto según la convención REST
+    // El backend espera { tables: [...] } en el body
     return this.http.patch<Zone>(`${this.apiUrl}/${id}/layout`, { tables });
   }
 }

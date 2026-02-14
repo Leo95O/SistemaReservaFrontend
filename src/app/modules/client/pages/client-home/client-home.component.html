@@ -1,0 +1,86 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title>Bienvenido</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/client/history">
+        <ion-icon slot="icon-only" name="calendar-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" color="light">
+
+  <div class="mb-6">
+    <h3 class="text-lg font-bold text-gray-800 mb-3 pl-1">
+      1. Elige tu Sede
+    </h3>
+
+    <ng-container *ngIf="branches$ | async as branches; else loadingBranches">
+      
+      <div class="grid grid-cols-1 gap-3">
+        <ion-card *ngFor="let branch of branches" 
+                  (click)="onSelectBranch(branch)"
+                  class="m-0 branch-card cursor-pointer transition-all"
+                  [class.ring-2]="selectedBranchId === branch.id"
+                  [class.ring-primary]="selectedBranchId === branch.id">
+          <ion-item lines="none" detail="false">
+            <ion-icon name="business" slot="start" color="medium"></ion-icon>
+            <ion-label>
+              <h2 class="font-bold">{{ branch.name }}</h2>
+              <p class="text-sm text-gray-500">{{ branch.address }}</p>
+            </ion-label>
+            <ion-icon *ngIf="selectedBranchId === branch.id" 
+                      name="checkmark-circle" slot="end" color="primary"></ion-icon>
+          </ion-item>
+        </ion-card>
+      </div>
+
+      <div *ngIf="branches.length === 0" class="text-center p-8 bg-white rounded-lg">
+        <p class="text-gray-500">No hay sedes disponibles por el momento.</p>
+      </div>
+
+    </ng-container>
+
+    <ng-template #loadingBranches>
+      <div class="flex justify-center p-8">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+    </ng-template>
+  </div>
+
+  <div *ngIf="selectedBranchId" class="animate-fade-in-up">
+    <h3 class="text-lg font-bold text-gray-800 mb-3 pl-1 mt-6">
+      2. Elige el Ambiente
+    </h3>
+
+    <ng-container *ngIf="zones$ | async as zones; else loadingZones">
+      
+      <div class="grid grid-cols-2 gap-3">
+        <ion-card *ngFor="let zone of zones" 
+                  (click)="onSelectZone(zone)"
+                  class="m-0 zone-card cursor-pointer hover:shadow-lg">
+          <div class="h-24 bg-gray-200 flex items-center justify-center">
+            <ion-icon name="restaurant" class="text-4xl text-gray-400"></ion-icon>
+          </div>
+          <ion-card-content class="text-center pt-2 pb-3">
+            <h3 class="font-bold text-dark">{{ zone.name }}</h3>
+            <p class="text-xs text-green-600 font-semibold">Disponible</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <div *ngIf="zones.length === 0" class="text-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
+        <p class="text-gray-500 text-sm">Esta sede aún no tiene zonas habilitadas.</p>
+      </div>
+
+    </ng-container>
+
+    <ng-template #loadingZones>
+      <div class="flex justify-center p-4">
+        <ion-spinner name="dots" color="secondary"></ion-spinner>
+      </div>
+    </ng-template>
+  </div>
+
+</ion-content>

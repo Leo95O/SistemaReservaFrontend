@@ -2,31 +2,37 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 
-// 1. Importamos el Módulo Compartido del Mapa (VITAL)
+// Componentes
+import { BookingMapComponent } from './pages/booking-map/booking-map.component';
+import { ClientHomeComponent } from './pages/client-home/client-home.component';
+import { MyReservationsComponent } from './pages/my-reservations/my-reservations.component';
+
+// Módulos compartidos
 import { MapRendererModule } from '../../shared/ui/map-renderer/map-renderer.module';
 
-// 2. Importamos el Componente (Ahora en su nueva ubicación correcta)
-import { BookingMapComponent } from './pages/booking-map/booking-map.component';
-
 const routes: Routes = [
-  // Ruta relativa: /client/book/:zoneId
-  {
-    path: 'book/:zoneId',
-    component: BookingMapComponent
+  { 
+    path: '', 
+    children: [
+      { path: 'home', component: ClientHomeComponent },
+      { path: 'history', component: MyReservationsComponent },
+      { path: 'booking/:zoneId', component: BookingMapComponent },
+      { path: '', redirectTo: 'home', pathMatch: 'full' }
+    ]
   }
 ];
 
 @NgModule({
   declarations: [
-    BookingMapComponent // Declaramos el componente aquí
+    BookingMapComponent,
+    ClientHomeComponent,
+    MyReservationsComponent
   ],
   imports: [
     CommonModule,
     IonicModule,
-    FormsModule,
-    MapRendererModule, // Importamos el mapa
+    MapRendererModule,
     RouterModule.forChild(routes)
   ]
 })
